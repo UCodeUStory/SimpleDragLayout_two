@@ -57,10 +57,13 @@ public class DragLayout extends ViewGroup {
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        //摆放Menu的位置，根据上面图可以确定上下左右的坐标
+        /**
+         * 摆放Menu的位置，强制摆放到刚好全部出去
+         *
+         */
         mMenu.layout(-mMenuWidth, 0, 0, mScreenHeight);
         //摆放Content的位置
-        mContent.layout(0, 0, mScreenWidth, mScreenHeight);
+       // mContent.layout(0, 0, mScreenWidth, mScreenHeight);
     }
 
     @Override
@@ -120,8 +123,7 @@ public class DragLayout extends ViewGroup {
                         //大家可以先使用dx，然后运行一下，发现
                         //移动的方向是相反的，那么果断这里加个负号就可以了
                         scrollBy(-dx, 0);
-                        mMenu.setTranslationX(2*(mMenuWidth+getScrollX())/3);
-                      //  slidingMode2();
+                      //  mMenu.setTranslationX(2*(mMenuWidth+getScrollX())/3);
                     }
 
                 }else{/**向右滑动**/
@@ -130,13 +132,17 @@ public class DragLayout extends ViewGroup {
                     Log.i("qiyue","向右滑动getScrollX()="+getScrollX());
                     if (getScrollX() - dx <= -mMenuWidth) {
                         //直接移动到（-mMenuWidth,0）位置，不会出现白边
-                        scrollTo(-mMenuWidth, 0);
-                        mMenu.setTranslationX(0);
+                       // scrollTo(-mMenuWidth, 0);
+                     //   mMenu.setTranslationX(0);
                     } else {//Content没有完全显示呢
                         //根据手指移动
+                        /**
+                         *     整体移动，同时移动改变Menu位置
+                         */
+
                         scrollBy(-dx, 0);
-                        mMenu.setTranslationX(2*(mMenuWidth+getScrollX())/3);
-                      //  slidingMode2();
+                      //  mMenu.setTranslationX(2*(getScrollX())/2);
+
                     }
 
                 }
@@ -146,19 +152,37 @@ public class DragLayout extends ViewGroup {
                 break;
 
             case MotionEvent.ACTION_UP:
-                if (getScrollX() < -mMenuWidth / 2){//打开Menu
-                    //调用startScroll方法，第一个参数是起始X坐标，第二个参数
-                    //是起始Y坐标，第三个参数是X方向偏移量，第四个参数是Y方向偏移量
-                    mScroller.startScroll(getScrollX(), 0, -mMenuWidth - getScrollX(), 0, 300);
-                    //设置一个已经打开的标识，当实现点击开关自动打开关闭功能时会用到
-                    isOpen = true;
-                    //一定不要忘了调用这个方法重绘，否则没有动画效果
-                    invalidate();
-                }else{//关闭Menu
-                    //同上
-                    mScroller.startScroll(getScrollX(), 0, -getScrollX(), 0, 300);
-                    isOpen = false;
-                    invalidate();
+                Log.i("qiyue","getScrollX()="+getScrollX()+"mMenuWidth="+mMenuWidth);
+                if (!isOpen) {
+                    if (getScrollX() < -mMenuWidth / 4) {//打开Menu
+                        //调用startScroll方法，第一个参数是起始X坐标，第二个参数
+                        //是起始Y坐标，第三个参数是X方向偏移量，第四个参数是Y方向偏移量
+                        mScroller.startScroll(getScrollX(), 0, -mMenuWidth - getScrollX(), 0, 300);
+                        //设置一个已经打开的标识，当实现点击开关自动打开关闭功能时会用到
+                        isOpen = true;
+                        //一定不要忘了调用这个方法重绘，否则没有动画效果
+                        invalidate();
+                    } else {//关闭Menu
+                        //同上
+                        mScroller.startScroll(getScrollX(), 0, -getScrollX(), 0, 300);
+                        isOpen = false;
+                        invalidate();
+                    }
+                }else{
+                    if (getScrollX() < (-mMenuWidth / 1)+(mMenuWidth/4)) {//打开Menu
+                        //调用startScroll方法，第一个参数是起始X坐标，第二个参数
+                        //是起始Y坐标，第三个参数是X方向偏移量，第四个参数是Y方向偏移量
+                        mScroller.startScroll(getScrollX(), 0, -mMenuWidth - getScrollX(), 0, 300);
+                        //设置一个已经打开的标识，当实现点击开关自动打开关闭功能时会用到
+                        isOpen = true;
+                        //一定不要忘了调用这个方法重绘，否则没有动画效果
+                        invalidate();
+                    } else {//关闭Menu
+                        //同上
+                        mScroller.startScroll(getScrollX(), 0, -getScrollX(), 0, 300);
+                        isOpen = false;
+                        invalidate();
+                    }
                 }
 
                 break;
@@ -174,12 +198,13 @@ public class DragLayout extends ViewGroup {
     public void computeScroll() {
         if (mScroller.computeScrollOffset()){
             scrollTo(mScroller.getCurrX(), mScroller.getCurrY());
-            scale = Math.abs((float)getScrollX()) / (float) mMenuWidth;
-          //  mMenu.setTranslationX(2*(mMenuWidth+getScrollX())/3);
-          //  mMenu.setTranslationX(mMenuWidth+getScrollX());
+            //scale = Math.abs((float)getScrollX()) / (float) mMenuWidth;
+            //  mMenu.setTranslationX(2*(mMenuWidth+getScrollX())/3);
+            //mMenu.setTranslationX(mMenuWidth+getScrollX());
             invalidate();
         }
     }
+
 
     /**
      * 将传进来的数转化为dp
